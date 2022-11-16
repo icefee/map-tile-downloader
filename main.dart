@@ -13,9 +13,12 @@ void main(List<String> args) {
   // String url = 'http://wallpaperswide.com/download/cute_anime_girl_2-wallpaper-3554x1999.jpg';
   // downloadFile(url);
   // Future.wait([randomInt(2), randomInt(5)]).then((value) => print(value));
-  downloadTiles(parseLocationArg(args[0]), parseLocationArg(args[1]),
+  downloadTiles(
+      parseLocationArg(args[0]),
+      parseLocationArg(args[1]),
       parseRangeArg(args[2]),
-      types: args.length > 3 ? parseMapType(args[3]) : null);
+      types: args.length > 3 ? parseMapType(args[3]) : null
+  );
 }
 
 Location parseLocationArg(String arg) {
