@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:io';
 import './tool/map.dart';
+import './tool/tile.dart';
 import './tool/downloader.dart';
 
 int thread = 20;
@@ -27,8 +28,18 @@ List<int> parseRangeArg(String arg) {
   return range.map((e) => int.parse(e)).toList();
 }
 
-List<String> parseMapType(String arg) {
-  return arg.split(',');
+List<MapTileType> parseMapType(String arg) {
+  List<String> argTypes = arg.split(',');
+  return argTypes.map((String type) {
+    if (type == MapTileType.Normal.value) {
+      return MapTileType.Normal;
+    } else if (type == MapTileType.Sate.value) {
+      return MapTileType.Sate;
+    } else if (type == MapTileType.Mix.value) {
+      return MapTileType.Mix;
+    }
+    throw ArgumentError('地图类型错误');
+  }).toList();
 }
 
 Future<int> randomInt(int seconds) async {
@@ -47,18 +58,6 @@ List<Tile> getTiles(Location loc1, Location loc2, int zoom) {
   Tile leftBottom = MapTool.lngLatToTile(loc1.lng, loc1.lat, zoom);
   Tile rightTop = MapTool.lngLatToTile(loc2.lng, loc2.lat, zoom);
   return [leftBottom, rightTop];
-}
-
-String tileUri(String type, {required int x, required int y, required int z}) {
-  String baseUrl = 'http://maponline${x % 4}.bdimg.com';
-  Map tileTemplateMap = {
-    'normal':
-        '$baseUrl/tile/?qt=vtile&x=$x&y=$y&z=$z&styles=pl&scaler=1&udt=20220317&from=jsapi3_0',
-    'sate':
-        '$baseUrl/starpic/?qt=satepc&u=x=$x;y=$y;z=$z;v=009;type=sate&fm=46&udt=20220317',
-    'mix': '${baseUrl}/tile/?qt=vtile&x=$x&y=$y&z=$z&styles=sl&udt=20220317'
-  };
-  return tileTemplateMap[type];
 }
 
 String loopCreateDir(String path, {String basePath = '.'}) {
@@ -80,25 +79,26 @@ String loopCreateDir(String path, {String basePath = '.'}) {
 Future<void> loopDownloadTile(String url, String fileName) async {
   try {
     await Downloader.downloadFile(url, fileName: fileName);
-  }
-  catch(err) {
+  } catch (err) {
     print('$url 下载失败, 重试中...');
     return loopDownloadTile(url, fileName);
   }
 }
 
-Future<void> downloadTile(int x, int y, int z, {List<String>? types}) async {
+Future<void> downloadTile(int x, int y, int z,
+    {List<MapTileType>? types}) async {
   print('pending { x: $x, y: $y, z: $z }');
   await Future.wait<void>(
-      (types ?? ['normal', 'sate', 'mix']).map((String mapType) {
-        String fileName =
-        loopCreateDir('tiles/$mapType/$z/$x'); // /$z/$x/$y.png
-        return loopDownloadTile(tileUri(mapType, x: x, y: y, z: z), fileName + '/$y.png');
-      }));
+      (types ?? [MapTileType.Normal, MapTileType.Sate, MapTileType.Mix])
+          .map((MapTileType mapType) {
+    String fileName = loopCreateDir('tiles/${mapType.value}/$z/$x');
+    return loopDownloadTile(
+        MapTile.getTileUrl(mapType, x: x, y: y, z: z), fileName + '/$y.png');
+  }));
 }
 
 Future<void> downloadTiles(Location loc1, Location loc2, List<int> range,
-    {List<String>? types}) async {
+    {List<MapTileType>? types}) async {
   for (int z = range[0]; z <= range[1]; z++) {
     List<Tile> tiles = getTiles(loc1, loc2, z);
     for (int x = tiles[0].x; x <= tiles[1].x; x++) {
@@ -106,8 +106,7 @@ Future<void> downloadTiles(Location loc1, Location loc2, List<int> range,
       for (int i = 0; i <= ((end - start) / thread).floor(); i++) {
         int from = start + i * thread,
             to = min(end, start + (i + 1) * thread - 1);
-        await Future.wait<void>(List.generate(
-            to - from + 1,
+        await Future.wait<void>(List.generate(to - from + 1,
             (int s) => downloadTile(x, from + s, z, types: types)));
         // await threadFeature(start + i * thread, min(end, start + (i + 1) * thread - 1));
       }
