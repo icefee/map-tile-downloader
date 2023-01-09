@@ -87,6 +87,20 @@ Future<void> downloadTile(int x, int y, int z, List<MapTileType> types) async {
 
 Future<void> downloadTiles(Location loc1, Location loc2, List<int> range,
     List<MapTileType> types, int thread) async {
+
+  print(
+    '''
+    
+      ┏┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┓
+      │                                           │
+      │             离线地图下载工具v1.0              │
+      │         https://map-tile.surge.sh         │
+      │                                           │
+      ┗┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┛
+      
+    '''
+  );
+
   FillingBar fillingBar = FillingBar(
       desc: '地图下载中',
       total: range.last - range.first + 1,
