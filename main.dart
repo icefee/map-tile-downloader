@@ -93,7 +93,7 @@ Future<void> downloadTiles(Location loc1, Location loc2, List<int> range,
     
       ┏┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┓
       │                                           │
-      │             离线地图下载工具v1.0              │
+      │             离线地图下载工具v1.0          │
       │         https://map-tile.surge.sh         │
       │                                           │
       ┗┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┛
