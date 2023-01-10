@@ -104,7 +104,7 @@ Future<void> downloadTiles(Location loc1, Location loc2, List<int> range,
 
   for (int z = range.first; z <= range.last; z ++) {
     List<Tile> tiles = getTiles(loc1, loc2, z);
-    print('开始下载层级: $z / ${range.last}');
+    print('下载层级: $z / ${range.last}');
     var progress = ProgressBar(
         complete: (tiles.last.x - tiles.first.x + 1) * (tiles.last.y - tiles.first.y + 1)
     );
