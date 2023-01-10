@@ -2,8 +2,14 @@
   "configVersion": 2,
   "packages": [
     {
-      "name": "console_bars",
-      "rootUri": "file:///C:/Users/atian/AppData/Local/Pub/Cache/hosted/pub.flutter-io.cn/console_bars-1.1.0",
+      "name": "console",
+      "rootUri": "file:///C:/Users/atian/AppData/Local/Pub/Cache/hosted/pub.flutter-io.cn/console-4.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "vector_math",
+      "rootUri": "file:///C:/Users/atian/AppData/Local/Pub/Cache/hosted/pub.flutter-io.cn/vector_math-2.1.4",
       "packageUri": "lib/",
       "languageVersion": "2.14"
     },
@@ -14,7 +20,7 @@
       "languageVersion": "2.18"
     }
   ],
-  "generated": "2023-01-09T07:02:12.701597Z",
+  "generated": "2023-01-10T00:43:51.049908Z",
   "generator": "pub",
   "generatorVersion": "2.19.0-309.0.dev"
 }

@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'dart:io';
-import 'package:console_bars/console_bars.dart';
+import 'package:console/console.dart';
 import './tool/map.dart';
 import './tool/tile.dart';
 import './tool/downloader.dart';
@@ -62,7 +62,7 @@ String loopCreateDir(String path, {String basePath = '.'}) {
       continue;
     }
     // print('create $currentPath');
-    dir.create();
+    dir.createSync();
   }
   return dir.path;
 }
@@ -93,7 +93,8 @@ Future<void> downloadTiles(Location loc1, Location loc2, List<int> range,
     
       ┏┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┓
       │                                           │
-      │             离线地图下载工具v1.0          │
+      │         map tile downloader v1.1          │
+      │             build 2023.01.10              │
       │         https://map-tile.surge.sh         │
       │                                           │
       ┗┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┛
@@ -101,27 +102,24 @@ Future<void> downloadTiles(Location loc1, Location loc2, List<int> range,
     '''
   );
 
-  FillingBar fillingBar = FillingBar(
-      desc: '地图下载中',
-      total: range.last - range.first + 1,
-      time: true,
-      percentage: true,
-      space: '-',
-      fill: '=',
-      width: 20
-  );
   for (int z = range.first; z <= range.last; z ++) {
     List<Tile> tiles = getTiles(loc1, loc2, z);
+    print('开始下载层级: $z / ${range.last}');
+    var progress = ProgressBar(
+        complete: (tiles.last.x - tiles.first.x + 1) * (tiles.last.y - tiles.first.y + 1)
+    );
     for (int x = tiles.first.x; x <= tiles.last.x; x ++) {
       int start = tiles.first.y, end = tiles.last.y;
       for (int i = 0; i <= ((end - start) / thread).floor(); i ++) {
         int from = start + i * thread,
             to = min(end, start + (i + 1) * thread - 1);
-        await Future.wait<void>(List.generate(
-            to - from + 1, (int s) => downloadTile(x, from + s, z, types)));
+        int parts = to - from + 1;
+        await Future.wait<void>(List.generate(parts, (int s) => downloadTile(x, from + s, z, types)));
+        progress.update(
+          progress.current + parts
+        );
       }
     }
-    fillingBar.increment();
   }
   print('地图下载完成.');
 }

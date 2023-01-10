@@ -5,4 +5,4 @@ version: 1.0.0+1
 environment:
   sdk: ">=2.18.0 <3.0.0"
 dependencies:
-  console_bars: ^1.1.0
+  console: ^4.1.0
