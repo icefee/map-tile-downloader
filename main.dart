@@ -6,8 +6,26 @@ import './tool/tile.dart';
 import './tool/downloader.dart';
 
 void main(List<String> args) {
-  downloadTiles(parseLocationArg(args[0]), parseLocationArg(args[1]),
-      parseRangeArg(args[2]), parseMapType(args[3]), parseThread(args[4]));
+  if (args.isEmpty) {
+    print('''
+    
+    ┏┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┓
+        非法的调用方式
+        请通过生成的批处理文件(.bat)打开.
+        访问: https://map-tile.surge.sh 生成
+        备用地址: https://code-in-life.stormkit.dev/maptile
+        确保生成的批处理文件跟本程序在同一目录, 且本程序的名称为 tile.exe
+        按Enter关闭本程序...
+    ┗┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┛
+    ''');
+    var shell = ShellPrompt();
+    shell.loop().listen((line) {
+      shell.stop();
+    });
+  } else {
+    downloadTiles(parseLocationArg(args[0]), parseLocationArg(args[1]),
+        parseRangeArg(args[2]), parseMapType(args[3]), parseThread(args[4]));
+  }
 }
 
 Location parseLocationArg(String arg) {
@@ -87,9 +105,7 @@ Future<void> downloadTile(int x, int y, int z, List<MapTileType> types) async {
 
 Future<void> downloadTiles(Location loc1, Location loc2, List<int> range,
     List<MapTileType> types, int thread) async {
-
-  print(
-    '''
+  print('''
     
       ┏┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┓
       │                                           │
@@ -99,25 +115,23 @@ Future<void> downloadTiles(Location loc1, Location loc2, List<int> range,
       │                                           │
       ┗┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┛
       
-    '''
-  );
+    ''');
 
-  for (int z = range.first; z <= range.last; z ++) {
+  for (int z = range.first; z <= range.last; z++) {
     List<Tile> tiles = getTiles(loc1, loc2, z);
     print('下载层级: $z / ${range.last}');
     var progress = ProgressBar(
-        complete: (tiles.last.x - tiles.first.x + 1) * (tiles.last.y - tiles.first.y + 1)
-    );
-    for (int x = tiles.first.x; x <= tiles.last.x; x ++) {
+        complete: (tiles.last.x - tiles.first.x + 1) *
+            (tiles.last.y - tiles.first.y + 1));
+    for (int x = tiles.first.x; x <= tiles.last.x; x++) {
       int start = tiles.first.y, end = tiles.last.y;
-      for (int i = 0; i <= ((end - start) / thread).floor(); i ++) {
+      for (int i = 0; i <= ((end - start) / thread).floor(); i++) {
         int from = start + i * thread,
             to = min(end, start + (i + 1) * thread - 1);
         int parts = to - from + 1;
-        await Future.wait<void>(List.generate(parts, (int s) => downloadTile(x, from + s, z, types)));
-        progress.update(
-          progress.current + parts
-        );
+        await Future.wait<void>(List.generate(
+            parts, (int s) => downloadTile(x, from + s, z, types)));
+        progress.update(progress.current + parts);
       }
     }
   }
