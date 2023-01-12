@@ -81,7 +81,7 @@ Future<void> getInputArgs() async {
       errorMessage: '输入的经度不合法, 应该介于 -180 ~ 180');
   double lat = await readInputValue<double>(
       '输入中心点纬度(lat): ', (s) => s != null && s.abs() < 90, double.tryParse,
-      errorMessage: '输入的经度不合法, 应该介于 -90 ~ 90');
+      errorMessage: '输入的纬度不合法, 应该介于 -90 ~ 90');
   double radius = await readInputValue<double>(
       '输入地图范围(km): ', (s) => s != null && s.abs() > .5, double.tryParse,
       errorMessage: '输入的值不合法, 必需大于0.5');
@@ -90,7 +90,7 @@ Future<void> getInputArgs() async {
       '输入需要下载的地图类型(n: 常规, s: 卫星, m: 混合), 用逗号(,)隔开: ',
       (s) => s != null && validateMapTypes(s, types),
       (s) => s,
-      errorMessage: '非法的地图类型, 只接受n,s,m三种类型');
+      errorMessage: '输入的地图类型不合法, 只能接受n,s,m三种类型');
   String parsedMapTypes =
       mapTypes.replaceAllMapped(RegExp(r'[nsm]'), (Match m) {
     if (m[0] == 'n') {
@@ -167,7 +167,6 @@ String loopCreateDir(String path, {String basePath = '.'}) {
     if (dir.existsSync()) {
       continue;
     }
-    // print('create $currentPath');
     dir.createSync();
   }
   return dir.path;
@@ -183,7 +182,6 @@ Future<void> loopDownloadTile(String url, String fileName) async {
 }
 
 Future<void> downloadTile(int x, int y, int z, List<MapTileType> types) async {
-  // print('pending { x: $x, y: $y, z: $z }');
   await Future.wait<void>(types.map((MapTileType mapType) {
     String fileName = loopCreateDir('tiles/${mapType.value}/$z/$x');
     return loopDownloadTile(
