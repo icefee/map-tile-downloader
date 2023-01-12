@@ -6,22 +6,40 @@ import './tool/tile.dart';
 import './tool/downloader.dart';
 
 void main(List<String> args) {
-  if (args.isEmpty) {
-    print('''
+  print('''
     
-    ┏┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┓
-        非法的调用方式
-        请通过生成的批处理文件(.bat)打开.
+      ┏┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┓
+      │                                           │
+      │         map tile downloader v1.2          │
+      │             build 2023.01.12              │
+      │         https://map-tile.surge.sh         │
+      │                                           │
+      ┗┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┛
+      
+      ┏┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┓
+        如果你对参数不熟悉, 请尽量通过生成的批处理文件(.bat)下载.
         访问: https://map-tile.surge.sh 生成
         备用地址: https://code-in-life.stormkit.dev/maptile
         确保生成的批处理文件跟本程序在同一目录, 且本程序的名称为 tile.exe
-        按Enter关闭本程序...
-    ┗┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┛
+      ┗┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┛
+      
     ''');
+
+  if (args.isEmpty) {
+    print('''
+      ┏┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┓
+    
+            当前已进入手动下载模式, 需要手动指定参数
+        
+      ┗┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┛
+    ''');
+    /*
     var shell = ShellPrompt();
     shell.loop().listen((line) {
       shell.stop();
     });
+     */
+    getInputArgs();
   } else {
     downloadTiles(parseLocationArg(args[0]), parseLocationArg(args[1]),
         parseRangeArg(args[2]), parseMapType(args[3]), parseThread(args[4]));
@@ -55,6 +73,76 @@ List<MapTileType> parseMapType(String arg) {
 int parseThread(String arg) {
   List<String> params = arg.split('=');
   return int.parse(params.last);
+}
+
+Future<void> getInputArgs() async {
+  double lng = await readInputValue<double>(
+      '输入中心点经度(lng): ', (s) => s != null && s.abs() < 180, double.tryParse,
+      errorMessage: '输入的经度不合法, 应该介于 -180 ~ 180');
+  double lat = await readInputValue<double>(
+      '输入中心点纬度(lat): ', (s) => s != null && s.abs() < 90, double.tryParse,
+      errorMessage: '输入的经度不合法, 应该介于 -90 ~ 90');
+  double radius = await readInputValue<double>(
+      '输入地图范围(km): ', (s) => s != null && s.abs() > .5, double.tryParse,
+      errorMessage: '输入的值不合法, 必需大于0.5');
+  List<String> types = ['n', 's', 's'];
+  String mapTypes = await readInputValue<String>(
+      '输入需要下载的地图类型(n: 常规, s: 卫星, m: 混合), 用逗号(,)隔开: ',
+      (s) => s != null && validateMapTypes(s, types),
+      (s) => s,
+      errorMessage: '非法的地图类型, 只接受n,s,m三种类型');
+  String parsedMapTypes =
+      mapTypes.replaceAllMapped(RegExp(r'[nsm]'), (Match m) {
+    if (m[0] == 'n') {
+      return 'normal';
+    } else if (m[0] == 's') {
+      return 'sate';
+    } else if (m[0] == 'm') {
+      return 'mix';
+    }
+    throw ArgumentError('地图类型错误');
+  });
+  double lngInKm = .009696868273018407;
+  double latInKm = .00899937224408571;
+  await downloadTiles(
+      Location(lng - lngInKm * radius, lat - latInKm * radius),
+      Location(lng + lngInKm * radius, lat + latInKm * radius),
+      [3, 19],
+      parseMapType(parsedMapTypes),
+      40);
+  print('''
+      ┏┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┓
+    
+            如果没有更多的下载任务, 请关闭窗口
+            或者重新指定参数开始下载
+        
+      ┗┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┛
+    ''');
+  getInputArgs();
+}
+
+typedef InputValidator<T> = bool Function(T? input);
+typedef NumberParser<T> = T? Function(String input);
+
+Future<T> readInputValue<T>(
+    String message, InputValidator<T> validator, NumberParser<T> parser,
+    {String? errorMessage}) async {
+  String input = await readInput(message);
+  var value = parser(input);
+  bool valid = validator(value);
+  if (valid) {
+    return value!;
+  }
+  if (errorMessage != null) {
+    print(errorMessage);
+  }
+  return readInputValue<T>(message, validator, parser,
+      errorMessage: errorMessage);
+}
+
+bool validateMapTypes(String input, List<String> types) {
+  List<String> argTypes = input.split(',');
+  return !argTypes.every((s) => !types.contains(s));
 }
 
 Future<void> downloadFile(String url) async {
@@ -105,18 +193,6 @@ Future<void> downloadTile(int x, int y, int z, List<MapTileType> types) async {
 
 Future<void> downloadTiles(Location loc1, Location loc2, List<int> range,
     List<MapTileType> types, int thread) async {
-  print('''
-    
-      ┏┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┓
-      │                                           │
-      │         map tile downloader v1.1          │
-      │             build 2023.01.10              │
-      │         https://map-tile.surge.sh         │
-      │                                           │
-      ┗┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┛
-      
-    ''');
-
   for (int z = range.first; z <= range.last; z++) {
     List<Tile> tiles = getTiles(loc1, loc2, z);
     print('下载层级: $z / ${range.last}');
@@ -135,5 +211,13 @@ Future<void> downloadTiles(Location loc1, Location loc2, List<int> range,
       }
     }
   }
-  print('地图下载完成.');
+  print('''
+  
+      ┏┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┓
+      
+             指定范围的地图已下载完成.
+             
+      ┗┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┛
+     
+  ''');
 }
