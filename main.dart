@@ -77,14 +77,14 @@ int parseThread(String arg) {
 
 Future<void> getInputArgs() async {
   double lng = await readInputValue<double>(
-      '输入中心点经度(lng): ', (s) => s != null && s.abs() < 180, double.tryParse,
+      '输入中心点经度(lng): ', (s) => s != null && s.abs() <= 180, double.tryParse,
       errorMessage: '输入的经度不合法, 应该介于 -180 ~ 180');
   double lat = await readInputValue<double>(
-      '输入中心点纬度(lat): ', (s) => s != null && s.abs() < 90, double.tryParse,
+      '输入中心点纬度(lat): ', (s) => s != null && s.abs() <= 90, double.tryParse,
       errorMessage: '输入的纬度不合法, 应该介于 -90 ~ 90');
   double radius = await readInputValue<double>(
-      '输入地图范围(km): ', (s) => s != null && s.abs() > .5, double.tryParse,
-      errorMessage: '输入的值不合法, 必需大于0.5');
+      '输入地图范围(km): ', (s) => s != null && s >= .5 && s <= 200, double.tryParse,
+      errorMessage: '输入的范围不合法, 应该介于 0.5 ~ 200');
   List<String> types = ['n', 's', 's'];
   String mapTypes = await readInputValue<String>(
       '输入需要下载的地图类型(n: 常规, s: 卫星, m: 混合), 用逗号(,)隔开: ',
