@@ -36,7 +36,7 @@ void main(List<String> args) {
         print('发现配置文件map.xml, 读取参数中..');
         Location? location = readConfigFromXml(file);
         if (location != null) {
-          double radius = 100;
+          int radius = 20;
           print('参数读取成功, 矩形选定范围 $radius km, 开始下载.');
           Location leftTop = Location(location.lng - lngInKm * radius, location.lat - latInKm * radius);
           Location rightBottom = Location(location.lng + lngInKm * radius, location.lat + latInKm * radius);
