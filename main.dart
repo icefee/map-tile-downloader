@@ -38,10 +38,12 @@ void main(List<String> args) {
         if (location != null) {
           double radius = 100;
           print('参数读取成功, 矩形选定范围 $radius km, 开始下载.');
+          Location leftTop = Location(location.lng - lngInKm * radius, location.lat - latInKm * radius);
+          Location rightBottom = Location(location.lng + lngInKm * radius, location.lat + latInKm * radius);
           downloadTiles(
             DownloadConfig(
-              Location(location.lat - lngInKm * radius, location.lat - latInKm * radius),
-              Location(location.lng + lngInKm * radius, location.lat + latInKm * radius),
+              leftTop,
+              rightBottom,
               range: [3, 19],
               types: parseMapType('normal,sate,mix'),
               thread: 40
