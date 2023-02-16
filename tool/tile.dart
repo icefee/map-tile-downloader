@@ -1,3 +1,5 @@
+part of tool;
+
 enum MapTileType {
   Normal(value: 'normal'),
   Sate(value: 'sate'),
@@ -24,4 +26,10 @@ abstract class MapTile {
     };
     return templateMap[type]!;
   }
+}
+
+List<Tile> getTiles(Location loc1, Location loc2, int zoom) {
+  Tile leftBottom = MapTool.lngLatToTile(loc1.lng, loc1.lat, zoom);
+  Tile rightTop = MapTool.lngLatToTile(loc2.lng, loc2.lat, zoom);
+  return [leftBottom, rightTop];
 }

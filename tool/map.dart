@@ -1,4 +1,4 @@
-import 'dart:math';
+part of tool;
 
 class Point {
   late double x;
