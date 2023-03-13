@@ -6,7 +6,7 @@ void main(List<String> args) {
     
       ┏┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┓
       │                                           │
-      │         map tile downloader v1.31         │
+      │         map tile downloader v1.3.1        │
       │             build 2023.03.13              │
       │         https://map-tile.surge.sh         │
       │                                           │
