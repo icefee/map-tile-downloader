@@ -16,7 +16,6 @@ void main(List<String> args) {
       
         如果你对参数不熟悉, 请尽量通过生成的批处理文件(.bat)下载.
         访问: https://map-tile.surge.sh 生成
-        备用地址: https://c.stormkit.dev/maptile
         确保生成的批处理文件跟本程序在同一目录, 且本程序的名称为 tile.exe
         
       ┗┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┛
